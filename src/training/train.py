@@ -120,11 +120,11 @@ def train_model(
     return model, train_losses, val_losses
 
 if __name__ == '__main__':
-    from src.data_processing.data_loader import DataLoader
+    from src.data_processing.data_loader import DatasetLoader
     from src.models.semantic_search_model import SemanticSearchModel
     
     # Load and preprocess data
-    data_loader = DataLoader()
+    data_loader = DatasetLoader()
     df = data_loader.load_data()
     processed_df = data_loader.prepare_dataset(df)
     train_df, val_df, test_df = data_loader.split_data(processed_df)

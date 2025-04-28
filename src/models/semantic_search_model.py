@@ -43,11 +43,17 @@ class SemanticSearchModel(nn.Module):
         projected = self.projection(cls_embedding)
         projected = self.dropout(projected)
         
-        return projected
+        return projected.squeeze(0)  # Remove batch dimension
     
     def compute_similarity(self, query_embedding: torch.Tensor, 
                          product_embedding: torch.Tensor) -> torch.Tensor:
         """Compute cosine similarity between query and product embeddings."""
+        # Ensure both tensors are 2D
+        if query_embedding.dim() == 1:
+            query_embedding = query_embedding.unsqueeze(0)
+        if product_embedding.dim() == 1:
+            product_embedding = product_embedding.unsqueeze(0)
+            
         # Normalize embeddings
         query_norm = torch.nn.functional.normalize(query_embedding, p=2, dim=1)
         product_norm = torch.nn.functional.normalize(product_embedding, p=2, dim=1)
@@ -60,8 +66,17 @@ class SemanticSearchModel(nn.Module):
     def forward(self, queries: List[str], products: List[str]) -> torch.Tensor:
         """Forward pass to compute similarity scores between queries and products."""
         # Encode queries and products
-        query_embeddings = torch.stack([self.encode_text(q) for q in queries])
-        product_embeddings = torch.stack([self.encode_text(p) for p in products])
+        query_embeddings = []
+        product_embeddings = []
+        
+        for q in queries:
+            query_embeddings.append(self.encode_text(q))
+        for p in products:
+            product_embeddings.append(self.encode_text(p))
+            
+        # Stack embeddings
+        query_embeddings = torch.stack(query_embeddings)
+        product_embeddings = torch.stack(product_embeddings)
         
         # Compute similarity scores
         similarity_scores = self.compute_similarity(query_embeddings, product_embeddings)

@@ -11,7 +11,7 @@ nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
-class DataLoader:
+class DatasetLoader:
     def __init__(self, data_dir='data'):
         self.data_dir = Path(data_dir)
         self.stop_words = set(stopwords.words('english'))
