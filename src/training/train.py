@@ -65,6 +65,8 @@ def train_model(
             
             # Forward pass
             similarity_scores = model(queries, products)
+            # Ensure similarity_scores is a 1D tensor matching labels
+            similarity_scores = similarity_scores.diagonal().view(-1)
             loss = criterion(similarity_scores, labels)
             
             # Backward pass
@@ -89,6 +91,8 @@ def train_model(
                 labels = batch['label'].float().to(device)
                 
                 similarity_scores = model(queries, products)
+                # Ensure similarity_scores is a 1D tensor matching labels
+                similarity_scores = similarity_scores.diagonal().view(-1)
                 loss = criterion(similarity_scores, labels)
                 
                 val_loss += loss.item()

@@ -5,6 +5,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import re
+from sklearn.model_selection import train_test_split
 
 # Download required NLTK data
 nltk.download('stopwords')
@@ -83,12 +84,14 @@ class DatasetLoader:
         }
         df['relevance_score'] = df['esci_label'].map(label_mapping)
         
-        return df[['processed_query', 'processed_product', 'relevance_score', 'split']]
+        return df[['processed_query', 'processed_product', 'relevance_score']]
     
     def split_data(self, df):
         """Split the dataset into train, validation, and test sets."""
-        train_df = df[df['split'] == 'train']
-        val_df = df[df['split'] == 'val']
-        test_df = df[df['split'] == 'test']
+        # First split into train and temp (val + test)
+        train_df, temp_df = train_test_split(df, test_size=0.3, random_state=42)
+        
+        # Then split temp into validation and test
+        val_df, test_df = train_test_split(temp_df, test_size=0.5, random_state=42)
         
         return train_df, val_df, test_df 
